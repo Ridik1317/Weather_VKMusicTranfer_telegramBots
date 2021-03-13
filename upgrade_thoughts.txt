@@ -1,9 +1,0 @@
-***
-Вместо сравнения <if message.text =='\U00011 Fact' > 
-сделать
-<global but 1
-if message.text==but1>
-***
-except Exception:
-     err = '\U000026A0 '*3 + str(sys.exc_info()) + '\U000026A0 '*3
-     bot.send_message(message.chat.id, err+ '\n Error when pars. Check link working or name.txt line order')
