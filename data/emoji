@@ -1,0 +1,45 @@
+{
+  "time": "&#128337",
+  "location": "&#127757",
+  "temperature": "&#127777",
+  "temp_min": "&#128201",
+  "temp_max": "&#128200",
+  "feels_like": "&#128076",
+  "condition": {
+    "clear": "&#9728",
+    "partly-cloudy": "&#127780",
+    "cloudy": "&#127781",
+    "overcast": "&#9729",
+    "rizzle": "&#127782",
+    "light-rain": "&#127783",
+    "rain": "&#127783",
+    "moderate-rain": "&#127783",
+    "heavy-rain": "&#9748&#127783",
+    "continuous-heavy-rain": "&#8986&#9748&#127783",
+    "showers": "&#128703&#127783",
+    "wet-snow": "&#127783&#127784",
+    "light-snow": "&#127784",
+    "snow": "&#127784",
+    "snow-showers": "&#10052&#127784",
+    "hail": "&#128142",
+    "thunderstorm": "&#127785",
+    "thunderstorm-with-rain": "&#9928",
+    "thunderstorm-with-hail": "&#127785&#128142"
+  },
+  "pressure_mm": "&#128476",
+  "wind_speed": "&#127788",
+  "wind_gust": "&#128168",
+  "wind_dir": "",
+  "humidity": "&#128167",
+  "sunrise": "&#127751",
+  "sunset": "&#127747",
+  "prec_mm": "&#128166",
+  "prec_period": "&#9201;",
+  "prec_prob": "&#127920"
+}
+
+
+
+
+
+
