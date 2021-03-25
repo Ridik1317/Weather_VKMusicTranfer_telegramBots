@@ -1,12 +1,13 @@
-import telebot   # библиотека работы с ботом
-import config   # конфигурация бота
-import data_mining   # файл для парсинга информации с файла
-from telebot import types   # импортирует типы из бота для использования кнопок
-import sys   # для обработки ошибок
+import telebot  # библиотека работы с ботом
+import data_mining  # файл для парсинга информации с файла
+from telebot import types  # импортирует типы из бота для использования кнопок
+import sys  # для обработки ошибок
+import os
 
 # бот просто считывает файл тхт и отправляет ссылки музыки пользователю
-
-bot = telebot.TeleBot(config.token)
+# heroku->settings->Config Vars
+TOKEN = os.getenv("TOKEN")
+bot = telebot.TeleBot(TOKEN)
 
 
 ########################################################################################################################
@@ -41,17 +42,18 @@ def help_handler(message):
         # отрабатываем ошибку
         if len(names) != len(links):
             bot.send_message(message.chat.id,
-                                '\U000026A0 Error. Number_Links=' + str(len(links)) +
-                                '; Number_Names=' + str(len(names)))
+                             '\U000026A0 Error. Number_Links=' + str(len(links)) +
+                             '; Number_Names=' + str(len(names)))
         else:
-            for i in range(0, len(links)):                    
+            for i in range(0, len(links)):
                 try:
                     print(i)
                     bot.send_audio(message.chat.id, links[i], caption=names[i], parse_mode='HTML')
                 except Exception:
-                    bot.send_message(message.chat.id, 'Error with '+ names[i], parse_mode='HTML')
-                    err = '\U000026A0 '*3 + str(sys.exc_info()) + '\U000026A0 '*3
-                    bot.send_message(message.chat.id, err + '\nError when pars. Check link working or name.txt line order')             
+                    bot.send_message(message.chat.id, 'Error with ' + names[i], parse_mode='HTML')
+                    err = '\U000026A0 ' * 3 + str(sys.exc_info()) + '\U000026A0 ' * 3
+                    bot.send_message(message.chat.id,
+                                     err + '\nError when pars. Check link working or name.txt line order')
             bot.send_message(message.chat.id, '\U0000270B\U0000270B\U0000270B\U0000270B\U0000270B\U0000270B')
     else:
         bot.send_message(message.chat.id, '\U000026D4\U000026D4\U000026D4 '
@@ -88,7 +90,7 @@ def take_links(message):
         if message.content_type == 'document':
             f_id = message.document.file_id
             get = bot.get_file(f_id)
-            url = f'https://api.telegram.org/file/bot{config.token}/{get.file_path}'
+            url = f'https://api.telegram.org/file/bot{TOKEN}/{get.file_path}'
             links_file = data_mining.download_file(url, 'doc/links.txt')
             send = bot.send_message(message.chat.id, '\U00002705 Accepted links file.Send me the names file')
             bot.register_next_step_handler(send, take_names)
@@ -111,7 +113,7 @@ def take_names(message):
         if message.content_type == 'document':
             f_id = message.document.file_id
             get = bot.get_file(f_id)
-            url = f'https://api.telegram.org/file/bot{config.token}/{get.file_path}'
+            url = f'https://api.telegram.org/file/bot{TOKEN}/{get.file_path}'
             names_file = data_mining.download_file(url, 'doc/titles.txt')
             bot.send_message(message.chat.id, '\U00002705 Accepted names file')
             bot.send_message(message.chat.id, 'If you ready write /y')
