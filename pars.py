@@ -166,8 +166,7 @@ def text_day_forecast_from_json(json_data):
     lon = str(json_data['info']['lon'])
     adres = get_adres(lat, lon)
     location = f'''{emoji['location']} {adres}'''
-    sun_move = f'''{emoji['sunrise']} {json_data['forecast']['sunrise']} {emoji['sunset']} 
-                   {json_data['forecast']['sunset']}'''
+    sun_move = f'''{emoji['sunrise']} {json_data['forecast']['sunrise']} {emoji['sunset']} {json_data['forecast']['sunset']}'''
     answer = url + '\n' + time + '\n' + location + '\n' + sun_move + '\n\n'
     for i in json_data['forecast']['parts']:
         tmp = part_day_handler(i)
