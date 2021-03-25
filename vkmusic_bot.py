@@ -75,7 +75,7 @@ def take_links(message):
         bot.send_message(message.chat.id, '\U0001F480\U0001F480\U0001F480 Reload')
     else:
         send = bot.send_message(message.chat.id, '\U0001F6AB Not document.Try again')
-        bot.register_next_step_handler(send, take_names)
+        bot.register_next_step_handler(send, take_links)
 
 
 # мы скачиваем файл названий что бы потом его использовать
@@ -95,7 +95,6 @@ def take_names(message):
         bot.register_next_step_handler(send, take_names)
 
 
-########################################################################################################################
 # Шаблоны клавиатур
 but1_text = '\U00002B07 Pars music from two file \U00002B07'
 keyboard_main = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
