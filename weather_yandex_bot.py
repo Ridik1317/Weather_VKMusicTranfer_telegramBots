@@ -1,13 +1,13 @@
 import telebot
-import config
 from pars import pars_day_now, pars_day_forecast, find_lanlon_city
 from telebot import types
 import json
+import os
 
-bot = telebot.TeleBot(config.bot_token)
+TOKEN = os.getenv("TOKEN")
+bot = telebot.TeleBot(TOKEN)
 
 
-########################################################################################################################
 # обрабатывает команду хелп
 @bot.message_handler(commands=['help'])
 def help_handler(message):
@@ -17,16 +17,9 @@ def help_handler(message):
 # обрабатывает команду старт, это основное меню
 @bot.message_handler(commands=['start'])
 def start_handler(message):
-    if message.chat.id in users:
-        bot.send_message(message.chat.id, 'City or Location?\U0001F914',
-                         reply_markup=keyboard_main)
-    else:
-        bot.send_message(message.chat.id, '\U000026D4\U000026D4\U000026D4 '
-                                          'Authorisation Error \U000026D4\U000026D4\U000026D4 \n'
-                                          'If you want to use these bot or see how it works you can contact with '
-                                          '@RUDIK1317')
+    bot.send_message(message.chat.id, 'City or Location?\U0001F914', reply_markup=keyboard_main)
 
-########################################################################################################################
+
 # меняет город по умолчанию
 def change_city(message):
     if message.location is not None:
@@ -61,100 +54,88 @@ def find_city(message):
         bot.send_message(message.chat.id, "\U000026A0 Error. Can't find city", reply_markup=keyboard_main)
 
 
-########################################################################################################################
 # обрабатывает текст, точнее кнопки которые нажимаются по ходу пользования ботом
 @bot.message_handler(content_types=['text'])
 def text_handler(message):
-    if message.chat.id in users:
-        global lat, lon
-        if message.text == '\U0001F3E2 City':
-            bot.send_message(message.chat.id, 'What method you want to use? \U0001F9D0',
-                             reply_markup=keyboard_choose_city)
-        elif message.text == '\U0001F4DD File city':
-            bot.send_message(message.chat.id, 'Now or forecast? \U0001F9E0', reply_markup=keyboard_file_city)
-        elif message.text == '\U0001F50E Find city':
-            send = bot.send_message(message.chat.id, 'Write the name of the city and '
-                                                     'adres you want to choose \U0000270F')
-            bot.register_next_step_handler(send, find_city)
-        elif message.text == '\U0001F447 File.Fact':
-            try:
-                with open('data/city_now') as f:
-                    json_city = json.loads(f.read())
-                lat = json_city['lat']
-                lon = json_city['lon']
-                answer = pars_day_now(lat, lon)
-                bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
-                                 reply_markup=keyboard_main)
-            except:
-                bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
-        elif message.text == '\U0001F449 File.Forecast':
-            try:
-                with open('data/city_now') as f:
-                    json_city = json.loads(f.read())
-                lat = json_city['lat']
-                lon = json_city['lon']
-                answer = pars_day_forecast(lat, lon)
-                bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
-                                 reply_markup=keyboard_main)
-            except:
-                bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
-        elif message.text == '\U0001F447 Find.Fact':
-            try:
-                answer = pars_day_now(lat, lon)
-                bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
-                                 reply_markup=keyboard_main)
-            except:
-                bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
-        elif message.text == '\U0001F449 Find.Forecast':
-            try:
-                answer = pars_day_forecast(lat, lon)
-                bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
-                                 reply_markup=keyboard_main)
-            except:
-                bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
-        elif message.text == '\U0001F447 L.Fact':
-            try:
-                answer = pars_day_now(lat, lon)
-                bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
-                                 reply_markup=keyboard_main)
-            except:
-                bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
-        elif message.text == '\U0001F449 L.Forecast':
-            try:
-                answer = pars_day_forecast(lat, lon)
-                bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
-                                 reply_markup=keyboard_main)
-            except:
-                bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
-        elif message.text == '\U00002699 Settings':
-            bot.send_message(message.chat.id, "What do you want? \U0001F913", reply_markup=keyboard_settings)
-        elif message.text == '\U0000267B Change city':
-            send = bot.send_message(message.chat.id, 'Your choice? \U0001F9D0', reply_markup=keyboard_change_city)
-            bot.register_next_step_handler(send, change_city)
-        else:
-            bot.send_message(message.chat.id, "I don't understand \U0001F92A", reply_markup=keyboard_main)
+    global lat, lon
+    if message.text == '\U0001F3E2 City':
+        bot.send_message(message.chat.id, 'What method you want to use? \U0001F9D0',
+                         reply_markup=keyboard_choose_city)
+    elif message.text == '\U0001F4DD File city':
+        bot.send_message(message.chat.id, 'Now or forecast? \U0001F9E0', reply_markup=keyboard_file_city)
+    elif message.text == '\U0001F50E Find city':
+        send = bot.send_message(message.chat.id, 'Write the name of the city and '
+                                                 'adres you want to choose \U0000270F')
+        bot.register_next_step_handler(send, find_city)
+    elif message.text == '\U0001F447 File.Fact':
+        try:
+            with open('data/city_now') as f:
+                json_city = json.loads(f.read())
+            lat = json_city['lat']
+            lon = json_city['lon']
+            answer = pars_day_now(lat, lon)
+            bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
+                             reply_markup=keyboard_main)
+        except:
+            bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
+    elif message.text == '\U0001F449 File.Forecast':
+        try:
+            with open('data/city_now') as f:
+                json_city = json.loads(f.read())
+            lat = json_city['lat']
+            lon = json_city['lon']
+            answer = pars_day_forecast(lat, lon)
+            bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
+                             reply_markup=keyboard_main)
+        except:
+            bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
+    elif message.text == '\U0001F447 Find.Fact':
+        try:
+            answer = pars_day_now(lat, lon)
+            bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
+                             reply_markup=keyboard_main)
+        except:
+            bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
+    elif message.text == '\U0001F449 Find.Forecast':
+        try:
+            answer = pars_day_forecast(lat, lon)
+            bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
+                             reply_markup=keyboard_main)
+        except:
+            bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
+    elif message.text == '\U0001F447 L.Fact':
+        try:
+            answer = pars_day_now(lat, lon)
+            bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
+                             reply_markup=keyboard_main)
+        except:
+            bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
+    elif message.text == '\U0001F449 L.Forecast':
+        try:
+            answer = pars_day_forecast(lat, lon)
+            bot.send_message(message.chat.id, answer, parse_mode='HTML', disable_web_page_preview=True,
+                             reply_markup=keyboard_main)
+        except:
+            bot.send_message(message.chat.id, "\U000026A0 Error", reply_markup=keyboard_main)
+    elif message.text == '\U00002699 Settings':
+        bot.send_message(message.chat.id, "What do you want? \U0001F913", reply_markup=keyboard_settings)
+    elif message.text == '\U0000267B Change city':
+        send = bot.send_message(message.chat.id, 'Your choice? \U0001F9D0', reply_markup=keyboard_change_city)
+        bot.register_next_step_handler(send, change_city)
     else:
-        bot.send_message(message.chat.id, '\U000026D4\U000026D4\U000026D4 '
-                                          'Authorisation Error \U000026D4\U000026D4\U000026D4 \n'
-                                          'If you want to use these bot or see how it works you can contact with '
-                                          '@RUDIK1317')
+        bot.send_message(message.chat.id, "I don't understand \U0001F92A", reply_markup=keyboard_main)
+
 
 ########################################################################################################################
 # обрабатывает локацию сохраняя данные в глобальные переменные, и предлагая варианты парса дальше
 @bot.message_handler(content_types=['location'])
 def command_handler(message):
-    if message.chat.id in users:
-        global lat, lon
-        lon = message.location.longitude
-        lat = message.location.latitude
-        bot.send_message(message.chat.id, 'Now or forecast? \U0001F9E0', reply_markup=keyboard_location)
-    else:
-        bot.send_message(message.chat.id, '\U000026D4\U000026D4\U000026D4 '
-                                          'Authorisation Error \U000026D4\U000026D4\U000026D4 \n'
-                                          'If you want to use these bot or see how it works you can contact with '
-                                          '@RUDIK1317')
+    global lat, lon
+    lon = message.location.longitude
+    lat = message.location.latitude
+    bot.send_message(message.chat.id, 'Now or forecast? \U0001F9E0', reply_markup=keyboard_location)
 
-########################################################################################################################
+
 # эскизы клавиатур
 keyboard_main = types.ReplyKeyboardMarkup(resize_keyboard=True)
 but1 = types.KeyboardButton('\U0001F3E2 City')
@@ -187,7 +168,7 @@ but9 = types.KeyboardButton('\U00002328 Find city')
 but10 = types.KeyboardButton('\U0001F6F0 Location point', request_location=True)
 keyboard_change_city.row(but9, but10)
 
-keyboard_choose_city =  types.ReplyKeyboardMarkup(resize_keyboard=True)
+keyboard_choose_city = types.ReplyKeyboardMarkup(resize_keyboard=True)
 but11 = types.KeyboardButton('\U0001F4DD File city')
 but12 = types.KeyboardButton('\U0001F50E Find city')
 keyboard_choose_city.row(but11, but12)
@@ -197,8 +178,16 @@ keyboard_choose_city.row(but11, but12)
 lat = 56
 lon = 37
 
-# допустимые пользователи
-users = {416555145: 'Dima', 353516260: 'Vincent'}
+"""
+users = {}
+if message.chat.id in users:
+    <code>
+else:
+    bot.send_message(message.chat.id, '\U000026D4\U000026D4\U000026D4 '
+                                      'Authorisation Error \U000026D4\U000026D4\U000026D4 \n'
+                                      'If you want to use these bot or see how it works you can contact with '
+                                      '@RUDIK1317')
+"""
 
 if __name__ == "__main__":
     bot.polling(none_stop=True)
