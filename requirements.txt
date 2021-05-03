@@ -1,0 +1,4 @@
+python-telegram-bot==12.7
+requests==2.7.0
+geopy==2.0.0
+psycopg2==2.8.6
