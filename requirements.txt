@@ -1,0 +1,4 @@
+python-telegram-bot==12.7
+requests==2.7.0
+beautifulsoup4==4.9.3
+vk-api==11.9.3
