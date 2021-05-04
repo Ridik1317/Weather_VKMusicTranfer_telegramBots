@@ -312,7 +312,7 @@ def take_mes_to_creator(update: Update, _: CallbackContext) -> str:
     sender = update.message.from_user['username']
     text = update.message.text
     Updater(TOKEN, use_context=True).bot.send_message(CREATOR, f"From @{sender}:\n{text}")
-    update.message.reply_text("Delivered. \U00002705 \n Thank you. \U00002764",
+    update.message.reply_text("Delivered. \U00002705 \nThank you. \U00002764",
                               reply_markup=ReplyKeyboardMarkup(start_k.keyboard, resize_keyboard=True)
                               )
     logger.info("User {}, sent text for master".format(update.effective_user["id"]))
