@@ -109,21 +109,25 @@ def ask_send_music_title(update: Update, _: CallbackContext) -> str:
 # +++
 def vk_parsing(update: Update, _: CallbackContext) -> str:
     global vk_flag
-    if vk_flag == 1:
+    message = update.message.text.split(sep='+')
+    if vk_flag == 1 and len(message) == 3:
         logger.info("User {}, sent person-id".format(update.effective_user["id"]))
-        message = update.message.text.split(sep='+')
         return vk_pars_person_id(message[0], message[1], message[2], update)
-    elif vk_flag == 2:
+    elif vk_flag == 2 and len(message) == 3:
         logger.info("User {}, sent album-id".format(update.effective_user["id"]))
-        message = update.message.text.split(sep='+')
         return vk_pars_album_id(message[0], message[1], message[2], update)
-    elif vk_flag == 3:
+    elif vk_flag == 3 and len(message) == 2:
         logger.info("User {}, sent song title".format(update.effective_user["id"]))
-        message = update.message.text.split(sep='+')
         return vk_find(message[0], message[1], update)
+    else:
+        update.message.reply_text("Incorrect text. \U000026D4",
+                                  reply_markup=ReplyKeyboardMarkup(vk_choice_k.keyboard, resize_keyboard=True)
+                                  )
+        vk_flag = 0
+        return VK_CHOICE
 
 
-# +++
+    # +++
 def vk_pars_person_id(pers_id: str, start: str, quantity: str, update: Update):
     vk_session = vk_api.VkApi(os.getenv("LOGIN"), os.getenv("PASSWORD"))
 
@@ -340,4 +344,4 @@ def main(local=0) -> None:
 vk_flag = 0
 
 if __name__ == "__main__":
-    main()
+    main(1)
