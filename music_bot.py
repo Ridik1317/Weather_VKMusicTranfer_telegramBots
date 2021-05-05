@@ -1,6 +1,7 @@
 import logging  # for loggers
 import os  # for using environ variables
 import vk_api
+import requests
 from vk_api.audio import VkAudio
 from telegram import ReplyKeyboardMarkup, Update, ReplyKeyboardRemove, TelegramError
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
@@ -129,7 +130,11 @@ def vk_parsing(update: Update, _: CallbackContext) -> str:
 
     # +++
 def vk_pars_person_id(pers_id: str, start: str, quantity: str, update: Update):
-    vk_session = vk_api.VkApi(os.getenv("LOGIN"), os.getenv("PASSWORD"))
+    prox = {'socks4': 'socks4:/188.93.65.58:36298'}
+    ses = requests.Session()
+    ses.proxies.update(prox)
+
+    vk_session = vk_api.VkApi(os.getenv("LOGIN"), os.getenv("PASSWORD"),  session=ses)
 
     try:
         vk_session.auth()
@@ -344,4 +349,4 @@ def main(local=0) -> None:
 vk_flag = 0
 
 if __name__ == "__main__":
-    main(1)
+    main()
