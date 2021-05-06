@@ -20,9 +20,8 @@ action_choice_k.add_button("\U0001F436 VK", 0)
 action_choice_k.add_button("\U00002699 Settings", 1)
 # +++
 vk_choice_k = KEYBOARD(2)
-vk_choice_k.add_button("\U0001F642 Person-id music", 0)
+vk_choice_k.add_button("\U0001F4BD Person-id music", 0)
 vk_choice_k.add_button("\U0001F50D Find music", 0)
-vk_choice_k.add_button("\U0001F4BD Album-id music", 1)
 vk_choice_k.add_button("\U000021A9 Back", 1)
 # +++
 settings_choice_k = KEYBOARD(2)

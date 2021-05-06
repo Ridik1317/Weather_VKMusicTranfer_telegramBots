@@ -72,7 +72,7 @@ def vk_choice(update: Update, _: CallbackContext) -> str:
 def ask_send_person_id(update: Update, _: CallbackContext) -> str:
     global vk_flag
     logger.info("User {}, choose person id".format(update.effective_user["id"]))
-    update.message.reply_text("Write the person-id+first parsing song number[0-N]+quantity of songs. \U0000270F"
+    update.message.reply_text("Write the person-id+first parsing song number+quantity of songs. \U0000270F"
                               "\n\U00002B07Template\U00002B07"
                               "\n314159+0+17",
                               reply_markup=ReplyKeyboardRemove()
@@ -82,12 +82,12 @@ def ask_send_person_id(update: Update, _: CallbackContext) -> str:
 
 
 # +++
-def ask_send_album_id(update: Update, _: CallbackContext) -> str:
+def ask_send_music_title(update: Update, _: CallbackContext) -> str:
     global vk_flag
-    logger.info("User {}, choose album id".format(update.effective_user["id"]))
-    update.message.reply_text("Write the album-id+first parsing song number[0-N]+quantity of songs. \U0000270F"
+    logger.info("User {}, choose find music".format(update.effective_user["id"]))
+    update.message.reply_text("Write the song request+start+quantity of answers. \U0000270F"
                               "\n\U00002B07Template\U00002B07"
-                              "\n314159+0+17",
+                              "\nSmash Mouth - All Star+1+7",
                               reply_markup=ReplyKeyboardRemove()
                               )
     vk_flag = 2
@@ -95,31 +95,25 @@ def ask_send_album_id(update: Update, _: CallbackContext) -> str:
 
 
 # +++
-def ask_send_music_title(update: Update, _: CallbackContext) -> str:
+def vk_go_parsing(update: Update, _: CallbackContext) -> str:
     global vk_flag
-    logger.info("User {}, choose find music".format(update.effective_user["id"]))
-    update.message.reply_text("Write the song request+quantity of answers. \U0000270F"
-                              "\n\U00002B07Template\U00002B07"
-                              "\nSmash Mouth - All Star+7",
-                              reply_markup=ReplyKeyboardRemove()
-                              )
-    vk_flag = 3
-    return TAKE_VK_MES
+    message = update.message.text
+    if vk_flag == 1:
+        logger.info("User {}, sent person-id".format(update.effective_user["id"]))
+    elif vk_flag == 2:
+        logger.info("User {}, sent song title".format(update.effective_user["id"]))
+    return vk_pars(message, update)
 
 
 # +++
-def vk_parsing(update: Update, _: CallbackContext) -> str:
+def vk_pars(message: str, update: Update):
     global vk_flag
-    message = update.message.text.split(sep='+')
-    if vk_flag == 1 and len(message) == 3:
-        logger.info("User {}, sent person-id".format(update.effective_user["id"]))
-        return vk_pars_person_id(message[0], message[1], message[2], update)
-    elif vk_flag == 2 and len(message) == 3:
-        logger.info("User {}, sent album-id".format(update.effective_user["id"]))
-        return vk_pars_album_id(message[0], message[1], message[2], update)
-    elif vk_flag == 3 and len(message) == 2:
-        logger.info("User {}, sent song title".format(update.effective_user["id"]))
-        return vk_find(message[0], message[1], update)
+
+    mes = message.split('+')
+    if len(mes) == 3:
+        pars_id = mes[0]
+        start = mes[1]
+        quantity = mes[2]
     else:
         update.message.reply_text("Incorrect text. \U000026D4",
                                   reply_markup=ReplyKeyboardMarkup(vk_choice_k.keyboard, resize_keyboard=True)
@@ -127,114 +121,39 @@ def vk_parsing(update: Update, _: CallbackContext) -> str:
         vk_flag = 0
         return VK_CHOICE
 
-
-    # +++
-def vk_pars_person_id(pers_id: str, start: str, quantity: str, update: Update):
-    prox = {'socks4': 'socks4:/188.93.65.58:36298'}
-    ses = requests.Session()
-    ses.proxies.update(prox)
-
-    vk_session = vk_api.VkApi(os.getenv("LOGIN"), os.getenv("PASSWORD"),  session=ses)
-
+    vk_session = vk_api.VkApi(os.getenv("LOGIN"), os.getenv("PASSWORD"))
     try:
         vk_session.auth()
         logger.info("User {}, log in VK".format(update.effective_user["id"]))
     except vk_api.AuthError as error_msg:
         logger.info("User {}, VK connecting ERROR {}".format(update.effective_user["id"], error_msg))
-        update.message.reply_text(f"VK connecting error. \U000026A0")
+        update.message.reply_text(f"VK connecting error. \U000026A0",
+                                  reply_markup=ReplyKeyboardMarkup(start_k.keyboard, resize_keyboard=True)
+                                  )
         return ConversationHandler.END
 
-    # module for audio
+    # for audio deal
     audio = VkAudio(vk_session)
-
-    if pers_id == '0':
-        pers_id = os.getenv("MY_ID")
-
-    # for audio send
+    # for mes send
     bot = Updater(TOKEN, use_context=True).bot
 
-    track = audio.get_iter(owner_id=pers_id)
+    if vk_flag == 1:
+        if pars_id == '0':
+            pars_id = os.getenv("MY_ID")
+        track = audio.get_iter(owner_id=pars_id)
+    elif vk_flag == 2:
+        track = audio.search_iter(pars_id)
+    else:
+        logger.info("User {}, flag ERROR".format(update.effective_user["id"]))
+        update.message.reply_text(f"Flag error. \U000026A0",
+                                  reply_markup=ReplyKeyboardMarkup(start_k.keyboard, resize_keyboard=True)
+                                  )
+        return ConversationHandler.END
+
     # skip
     for i in range(int(start)):
         next(track)
-    # pars
-    update.message.reply_text("Start. \U000025B6")
-    for i in range(int(quantity)):
-        song = next(track)
-        try:
-            bot.send_audio(str(update.message.from_user['id']), song['url'],
-                           caption=f'''<b>{song['artist']}:</b>\n<u><i>"{song['title']}"</i></u>''',
-                           parse_mode='HTML')
-        except (Exception, TelegramError) as err:
-            logger.info("User {}, audio sending ERROR {}".format(update.effective_user["id"], err))
-            update.message.reply_text(f"Can't pars song:{i}. \U000026D4")
-
-    logger.info("User {}, pars stopped".format(update.effective_user["id"]))
-    update.message.reply_text("The End. \U000023F9",
-                              reply_markup=ReplyKeyboardMarkup(start_k.keyboard, resize_keyboard=True)
-                              )
-    return ConversationHandler.END
-
-
-# +++
-def vk_pars_album_id(alb_id: str, start: str, quantity: str, update: Update):
-    vk_session = vk_api.VkApi(os.getenv("LOGIN"), os.getenv("PASSWORD"))
-
-    try:
-        vk_session.auth()
-        logger.info("User {}, log in VK".format(update.effective_user["id"]))
-    except vk_api.AuthError as error_msg:
-        logger.info("User {}, VK connecting ERROR {}".format(update.effective_user["id"], error_msg))
-        update.message.reply_text(f"VK connecting error. \U000026A0")
-        return ConversationHandler.END
-
-    # module for audio
-    audio = VkAudio(vk_session)
-
-    # for audio send
-    bot = Updater(TOKEN, use_context=True).bot
-    track = audio.get_albums_iter(owner_id=alb_id)
-    # skip
-    for i in range(int(start)):
-        next(track)
-    # pars
-    update.message.reply_text("Start. \U000025B6")
-    for i in range(int(quantity)):
-        song = next(track)
-        try:
-            bot.send_audio(str(update.message.from_user['id']), song['url'],
-                           caption=f'''<b>{song['artist']}:</b>\n<u><i>"{song['title']}"</i></u>''',
-                           parse_mode='HTML')
-        except (Exception, TelegramError) as err:
-            logger.info("User {}, audio sending ERROR {}".format(update.effective_user["id"], err))
-            update.message.reply_text(f"Can't pars number:{i}.  \U000026D4")
-
-    logger.info("User {}, pars stopped".format(update.effective_user["id"]))
-    update.message.reply_text("The End. \U000023F9",
-                              reply_markup=ReplyKeyboardMarkup(start_k.keyboard, resize_keyboard=True)
-                              )
-    return ConversationHandler.END
-
-
-# +++
-def vk_find(request: str, quantity: str, update: Update):
-    vk_session = vk_api.VkApi(os.getenv("LOGIN"), os.getenv("PASSWORD"))
-
-    try:
-        vk_session.auth()
-        logger.info("User {}, log in VK".format(update.effective_user["id"]))
-    except vk_api.AuthError as error_msg:
-        logger.info("User {}, VK connecting ERROR {}".format(update.effective_user["id"], error_msg))
-        update.message.reply_text(f"VK connecting error. \U000026A0")
-        return ConversationHandler.END
-
-    # module for audio
-    audio = VkAudio(vk_session)
-
-    # for audio send
-    bot = Updater(TOKEN, use_context=True).bot
-    track = audio.search_iter(request)
-    # pars
+    # start
     update.message.reply_text("Start. \U000025B6")
     for i in range(int(quantity)):
         song = next(track)
@@ -305,9 +224,8 @@ def main(local=0) -> None:
             VK_CHOICE: [
                 MessageHandler(Filters.regex(vk_choice_k.keyboard[0][0].text), ask_send_person_id),
                 MessageHandler(Filters.regex(vk_choice_k.keyboard[0][1].text), ask_send_music_title),
-                MessageHandler(Filters.regex(vk_choice_k.keyboard[1][0].text), ask_send_album_id),
-                MessageHandler(Filters.regex(vk_choice_k.keyboard[1][1].text), back_to_action_choice)],
-            TAKE_VK_MES: [MessageHandler(Filters.text, vk_parsing)],
+                MessageHandler(Filters.regex(vk_choice_k.keyboard[1][0].text), back_to_action_choice)],
+            TAKE_VK_MES: [MessageHandler(Filters.text, vk_go_parsing)],
             SETTINGS_CHOICE: [
                 MessageHandler(Filters.regex(settings_choice_k.keyboard[0][0].text), ask_send_mes_to_creator),
                 MessageHandler(Filters.regex(settings_choice_k.keyboard[1][0].text), back_to_action_choice)],
