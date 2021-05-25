@@ -13,7 +13,7 @@ class KEYBOARD:
 
 # +++
 start_k = KEYBOARD(1)
-start_k.add_button("\U0001F680 Let's go", 0)
+start_k.add_button("\U000025B6 Let's go", 0)
 # +++
 action_choice_k = KEYBOARD(2)
 action_choice_k.add_button("\U0001F436 VK", 0)
