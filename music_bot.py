@@ -123,7 +123,7 @@ def vk_pars(message: str, update: Update):
 
     vk_session = vk_api.VkApi(os.getenv("LOGIN"), os.getenv("PASSWORD"))
     try:
-        vk_session.auth()
+        vk_session.auth(reauth=True)
         logger.info("User {}, log in VK".format(update.effective_user["id"]))
     except vk_api.AuthError as error_msg:
         logger.info("User {}, VK connecting ERROR {}".format(update.effective_user["id"], error_msg))
